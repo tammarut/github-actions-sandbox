@@ -1,0 +1,8 @@
+# Prevent unnecessary files from being copied into the docker image
+Dockerfile
+.dockerignore
+.git/
+.github/
+bin/
+vendor/
+*.log
