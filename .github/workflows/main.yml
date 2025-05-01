@@ -9,7 +9,7 @@ on:
 jobs:
     golangci-lint:
         name: golangci-lint
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         permissions:
             contents: read
             # Optional: allow read access to pull request. Use with `only-new-issues` option.
@@ -27,7 +27,7 @@ jobs:
     # Test, and build jobs can run on both `push` and `pull_request`
     test:
         # Removed dependency on golangci-lint so they run in parallel
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-24.04
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -43,7 +43,7 @@ jobs:
     go-build:
         # Add dependencies on both golangci-lint and test
         needs: [golangci-lint, test]
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-24.04
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
