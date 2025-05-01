@@ -83,5 +83,4 @@ jobs:
                   file: Dockerfile
                   push: true
                   tags: |
-                      ghcr.io/${{ github.repository_owner }}/go-app:latest
                       ghcr.io/${{ github.repository_owner }}/go-app:${{ github.ref_name }}
