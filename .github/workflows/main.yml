@@ -55,3 +55,35 @@ jobs:
 
             - name: Build binary
               run: go build -v .
+
+    # build_docker_image: Runs ONLY on push to main (including PR merges)
+    build_docker_image:
+        # Add a condition to run only on push to main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        runs-on: ubuntu-24.04
+        needs: [go-build] # Wait for job go-build jobs to finish
+        permissions:
+            contents: read
+            packages: write
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Log in to GHCR
+              uses: docker/login-action@v3
+              with:
+                registry: ghcr.io
+                username: ${{ github.actor }}
+                password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Build docker image and push to Docker container registry
+              uses: docker/build-push-action@v5
+              with:
+                  context: .
+                  file: Dockerfile
+                  push: true
+                  tags: |
+                      ghcr.io/${{ github.repository_owner }}/go-app:latest
+                      ghcr.io/${{ github.repository_owner }}/go-app:${{ github.ref_name }}
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
