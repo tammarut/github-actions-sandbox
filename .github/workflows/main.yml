@@ -7,8 +7,26 @@ on:
         branches: ["main"] # Triggers when a PR is opened/updated against main
 
 jobs:
-  # Test, and build jobs can run on both `push` and `pull_request`
+    golangci-lint:
+        name: golangci-lint
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            # Optional: allow read access to pull request. Use with `only-new-issues` option.
+            # pull-requests: read
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-go@v5
+              with:
+                  go-version: "1.22"
+            - name: golangci-lint
+              uses: golangci/golangci-lint-action@v7
+              with:
+                  version: v2.0
+
+    # Test, and build jobs can run on both `push` and `pull_request`
     test:
+        # Removed dependency on golangci-lint so they run in parallel
         runs-on: ubuntu-20.04
         steps:
             - name: Checkout code
@@ -23,6 +41,8 @@ jobs:
               run: go test -v ./...
 
     go-build:
+        # Add dependencies on both golangci-lint and test
+        needs: [golangci-lint, test]
         runs-on: ubuntu-20.04
         steps:
             - name: Checkout code
