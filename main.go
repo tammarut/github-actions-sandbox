@@ -3,6 +3,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 )
@@ -10,10 +11,10 @@ import (
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// log request details
-		fmt.Printf("Received request: %s %s\n", r.Method, r.URL.Path)
+		slog.Default().Info("Received request", "method", r.Method, "path", r.URL.Path)
 		if _, err := fmt.Fprintf(w, "Hello, GitHub Actions!"); err != nil {
 			http.Error(w, "Failed to write response", http.StatusInternalServerError)
-			fmt.Printf("Error writing response: %v\n", err)
+			slog.Default().Error("Error writing response", "error", err)
 		}
 	})
 
@@ -26,8 +27,9 @@ func main() {
 		IdleTimeout:       120 * time.Second,
 	}
 
-	fmt.Println("Server running on :8080")
+	slog.Default().Info("Server running on :8080")
 	if err := server.ListenAndServe(); err != nil {
 		fmt.Printf("Server error: %v\n", err)
+		slog.Default().Error("Server error", "error", err)
 	}
 }

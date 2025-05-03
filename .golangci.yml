@@ -1,49 +1,49 @@
-version: "2"
+---
+version: '2'
 linters:
-  enable:
-    - revive # Modern style checks
-    - govet # Official Go analyzer
-    - staticcheck # Advanced static analysis
-    - gosec # Security checks
-    - errcheck # Error handling verification
-    - unconvert # Remove unnecessary conversions
-    - bodyclose # Check HTTP body close
-    - gocritic # Advanced code critique
-    - ineffassign # Find ineffectual assignments
-    - misspell # Check spelling
-    - unused # Find unused code
-    - gocyclo # Check cyclomatic complexity
-    - prealloc # Find slice preallocation opportunities
-  disable:
-    - wsl # Disable whitespace linter (opinionated)
-    - funlen # Disable function length check
-    - lll # Disable line length restriction
-    - godox # Disable TODO/FIXME comments check
-  exclusions:
-    presets:
-      - common-false-positives
-      - std-error-handling
+    enable:
+        - revive # Modern style checks
+        - govet # Official Go analyzer
+        - staticcheck # Advanced static analysis
+        - gosec # Security checks
+        - errcheck # Error handling verification
+        - unconvert # Remove unnecessary conversions
+        - bodyclose # Check HTTP body close
+        - gocritic # Advanced code critique
+        - ineffassign # Find ineffectual assignments
+        - misspell # Check spelling
+        - unused # Find unused code
+        - gocyclo # Check cyclomatic complexity
+        - prealloc # Find slice preallocation opportunities
+    disable:
+        - wsl # Disable whitespace linter (opinionated)
+        - funlen # Disable function length check
+        - lll # Disable line length restriction
+        - godox # Disable TODO/FIXME comments check
+    exclusions:
+        presets:
+            - common-false-positives
+            - std-error-handling
     # Excluding configuration per-path, per-linter, per-text and per-source.
-    rules:
+        rules:
       # Exclude some linters from running on tests files.
-      - path: _test\.go
-        linters:
-          - gocyclo
-          - errcheck
-          - dupl
-          - gosec
+            - path: _test\.go
+              linters:
+                  - gocyclo
+                  - errcheck
+                  - dupl
+                  - gosec
       # Exclude some `staticcheck` messages.
-      - linters:
-          - staticcheck
-        text: "SA9003:"
+            - linters:
+                  - staticcheck
+              text: 'SA9003:'
 run:
-  concurrency: 2
-  timeout: 5m
-  modules-download-mode: readonly
-  go: "1.24" # Using a recent Go version for analysis
+    concurrency: 2
+    timeout: 5m
+    modules-download-mode: readonly
+    go: '1.24' # Using a recent Go version for analysis
 
 formatters:
-  enable:
-    - gci
-    - gofumpt
-    - goimports
+    enable:
+        - gci
+        - gofumpt

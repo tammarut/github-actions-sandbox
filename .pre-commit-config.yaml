@@ -1,0 +1,58 @@
+---
+repos:
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.4.0
+      hooks:
+          - id: trailing-whitespace
+          - id: end-of-file-fixer
+          - id: check-yaml
+          - id: check-symlinks
+          - id: check-added-large-files
+          - id: check-merge-conflict
+          - id: detect-private-key
+          - id: detect-aws-credentials
+
+    - repo: local
+      hooks:
+          - id: gci
+            name: gci
+            entry: gci write -s standard -s default -s "prefix(github.com,go.uber.org,golang.org)" --skip-generated .
+            language: system
+            pass_filenames: false
+            files: .*\.go
+
+    - repo: local
+      hooks:
+          - id: gofumpt
+            name: gofumpt
+            entry: gofumpt -l -w
+            language: system
+            pass_filenames: true
+            types: [file, go]
+            files: ^.*\.go$
+            exclude: ^.*\.(yaml|yml|json|toml)$
+
+    - repo: https://github.com/dnephin/pre-commit-golang
+      rev: v0.5.1
+      hooks:
+          - id: go-cyclo
+          - id: validate-toml
+          - id: golangci-lint
+          - id: go-critic
+          - id: go-unit-tests
+          - id: go-mod-tidy
+          - id: go-build
+
+    - repo: local
+      hooks:
+          - id: go-sec
+            name: go security check
+            entry: gosec -severity high ./...
+            language: system
+            pass_filenames: false
+            files: .*\.go
+
+    - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+      rev: 0.2.3
+      hooks:
+          - id: yamlfmt
