@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime"
 	"syscall"
 	"time"
 
@@ -38,14 +39,29 @@ func main() {
 		return c.JSON(http.StatusOK, map[string]string{"message": "Hello, GitHub Actions!"})
 	})
 
-	// Add health check endpoint
+	// Add enhanced health check endpoint
 	e.GET("/health", func(c echo.Context) error {
 		slog.Default().Info("Health check requested", "remote_addr", c.RealIP())
+
+		// Get environment information
+		hostname, _ := os.Hostname()
+
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"status":    "ok",
 			"timestamp": time.Now().Format(time.RFC3339),
-			"version":   "0.0.1",                                              // For demo
-			"uptime":    time.Since(time.Now().Add(-24 * time.Hour)).String(), // Mock uptime for demo
+			"version":   "0.0.2",
+			"build":     "development",
+			"uptime":    time.Since(time.Now().Add(-24 * time.Hour)).String(),
+			"system": map[string]interface{}{
+				"hostname":    hostname,
+				"environment": "development",
+				"go_version":  runtime.Version(),
+				"goroutines":  runtime.NumGoroutine(),
+			},
+			"dependencies": map[string]string{
+				"database": "connected", // Mock status, replace with actual DB check
+				"cache":    "connected", // Mock status, replace with actual cache check
+			},
 		})
 	})
 
