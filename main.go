@@ -38,6 +38,17 @@ func main() {
 		return c.JSON(http.StatusOK, map[string]string{"message": "Hello, GitHub Actions!"})
 	})
 
+	// Add health check endpoint
+	e.GET("/health", func(c echo.Context) error {
+		slog.Default().Info("Health check requested", "remote_addr", c.RealIP())
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"status":    "ok",
+			"timestamp": time.Now().Format(time.RFC3339),
+			"version":   "0.0.1",                                              // For demo
+			"uptime":    time.Since(time.Now().Add(-24 * time.Hour)).String(), // Mock uptime for demo
+		})
+	})
+
 	// Configure server
 	server := &http.Server{
 		Addr:              ":8080",
