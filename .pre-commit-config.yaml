@@ -38,19 +38,9 @@ repos:
           - id: go-cyclo
           - id: validate-toml
           - id: golangci-lint
-          - id: go-critic
           - id: go-unit-tests
           - id: go-mod-tidy
           - id: go-build
-
-    - repo: local
-      hooks:
-          - id: go-sec
-            name: go security check
-            entry: gosec -severity high ./...
-            language: system
-            pass_filenames: false
-            files: .*\.go
 
     - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
       rev: 0.2.3

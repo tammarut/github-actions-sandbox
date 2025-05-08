@@ -2,34 +2,73 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	// Create a new Echo instance
+	e := echo.New()
+
+	// Configure middleware
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
+		Timeout: 10 * time.Second,
+	}))
+	e.Use(middleware.CORS())
+	e.Use(middleware.SecureWithConfig(middleware.SecureConfig{
+		XSSProtection:      "1; mode=block",
+		ContentTypeNosniff: "nosniff",
+	}))
+
+	// Define routes
+	e.GET("/", func(c echo.Context) error {
 		// log request details
-		slog.Default().Info("Received request", "method", r.Method, "path", r.URL.Path)
-		if _, err := fmt.Fprintf(w, "Hello, GitHub Actions!"); err != nil {
-			http.Error(w, "Failed to write response", http.StatusInternalServerError)
-			slog.Default().Error("Error writing response", "error", err)
-		}
+		slog.Default().Info("Received request", "method", c.Request().Method, "path", c.Request().URL.Path)
+		return c.JSON(http.StatusOK, map[string]string{"message": "Hello, GitHub Actions!"})
 	})
 
-	// Create a custom server with timeout settings
+	// Configure server
 	server := &http.Server{
 		Addr:              ":8080",
-		ReadHeaderTimeout: 3 * time.Second,
 		ReadTimeout:       10 * time.Second,
 		WriteTimeout:      10 * time.Second,
 		IdleTimeout:       120 * time.Second,
+		ReadHeaderTimeout: 3 * time.Second,
+		Handler:           e,
 	}
 
-	slog.Default().Info("Server running on :8080")
-	if err := server.ListenAndServe(); err != nil {
-		fmt.Printf("Server error: %v\n", err)
-		slog.Default().Error("Server error", "error", err)
+	// Start server in a goroutine
+	go func() {
+		slog.Default().Info("Server running on :8080")
+		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+			slog.Default().Error("Server error", "error", err)
+			os.Exit(1)
+		}
+	}()
+
+	// Graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := e.Shutdown(ctx); err != nil {
+		slog.Default().Error("Failed to shutdown server gracefully", "error", err)
+		fmt.Printf("Shutdown error: %v\n", err)
+	} else {
+		slog.Default().Info("Server shutdown gracefully")
 	}
 }
