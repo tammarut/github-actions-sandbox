@@ -49,7 +49,7 @@ func main() {
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"status":    "ok",
 			"timestamp": time.Now().Format(time.RFC3339),
-			"version":   "0.0.2",
+			"version":   "0.0.3",
 			"build":     "development",
 			"uptime":    time.Since(time.Now().Add(-24 * time.Hour)).String(),
 			"system": map[string]interface{}{
