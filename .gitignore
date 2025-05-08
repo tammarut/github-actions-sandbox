@@ -1,22 +1,18 @@
-# Prevent unnecessary files from being copied into the docker image
-##
-## Specific to .dockerignore
-##
-
-.git/
-Dockerfile
-contrib/
-
-##
-## Common with .gitignore
-##
+go-test.json
 
 # Temporary files
 *~
 *#
 .#*
+coverage.txt
+/.tmp/
+
+go-build.log
+go-install.log
+go-test.json
 
 # Vendors
+package-lock.json
 node_modules/
 vendor/
 
@@ -34,3 +30,8 @@ gin-bin
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# IDE settings
+.idea
+.vscode/
+.history/
